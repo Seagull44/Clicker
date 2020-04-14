@@ -15,11 +15,11 @@ public class Script1 : MonoBehaviour
     private int bonus = 1;
     public int priestscount, priestbonus = 1;
 
-
+    public GameObject nempan;
     public int[] upgradeCosts;
     public int[] upgradeBonuses;
     public Text[] upgradebttnstext;
-    public Text[] informationtext;
+
 
     private void Start()
     {
@@ -29,11 +29,11 @@ public class Script1 : MonoBehaviour
     {
         scoreText.text = score + "$";
     }
-    public void upgrade()
+    public void upgrade()                                                       // кнопка апгрейд знизу зправа
     {
         upgradepan.SetActive(!upgradepan.activeSelf);
     }
-    public void upgradepanplusbonus(int index)
+    public void upgradepanplusbonus(int index)                                  // панелька яка відкривається кнопкою апгрейд
     {
         if (score >= upgradeCosts[index])
         {
@@ -42,38 +42,49 @@ public class Script1 : MonoBehaviour
             upgradeCosts[index] *= 2;
             upgradebttnstext[index].text = "Lvlup\n" + upgradeCosts[index] + "$";
         }
-         else
+        else
         {
-            StartCoroutine(AnonceTimer(informationtext[index], index));
+            StartCoroutine(nem(nempan));                                        // запускає каротіну для панельки з надписом що не достатньо коштів
         }
+
 
     }
 
-    public void Hirepriest(int index)
+    public void Hirepriest(int index)                                             // метод для найму прістів
     {
         if (score >= upgradeCosts[index])
         {
             priestscount++;
             score -= upgradeCosts[index];
             upgradeCosts[index] *= 2;
-            upgradebttnstext[index].text = "Hirepriest\n" + upgradeCosts[index] + "$";
-            }
-     }
+            upgradebttnstext[index].text = "Hire priest\n" + upgradeCosts[index] + "$";
+        }
+        else
+        {
+            StartCoroutine(nem(nempan));                                        // запускає каротіну для панельки з надписом що не достатньо коштів
+        }
+    }
 
-    public void startPraytimer(int index)
+    public void startPraytimer(int index)                                           // старт молитви
     {
 
         int cost = 3 * priestscount;
         if (priestscount > 0)
-            upgradebttnstext[2].text = "Pray\n" + cost + "$";
-        score -= cost;
+        upgradebttnstext[2].text = "Pray\n" + cost + "$";
+        
         if (score >= cost)
         {
             StartCoroutine(PrayTimer(PrayTime[index], index));
+            score -= cost;
         }
+        else
+        {
+            StartCoroutine(nem(nempan));                                        // запускає каротіну для панельки з надписом що не достатньо коштів
+        }
+
     }
 
-    IEnumerator Bonuspersec()
+    IEnumerator Bonuspersec()                                                   // щосекунди добавляє бонус
     {
         while (true)
         {
@@ -95,18 +106,20 @@ public class Script1 : MonoBehaviour
 
         upgradebuttons[index].interactable = true;
     }
-    
-     IEnumerator AnonceTimer(float timer, int index)
-        {
-            informationtext[index].setActive;
-            yield return new WaitForSeconds(timer);
-            informationtext[index].activeSelf; // можливо це не нада
-        }
-    
+
+    IEnumerator nem(GameObject nempan)
+    {
+
+        nempan.SetActive(true);
+        yield return new WaitForSeconds(1);
+        nempan.SetActive(false);
+
+    }
     public void OnClick()
     {
         score += bonus;
 
     }
-    
+
+
 }
