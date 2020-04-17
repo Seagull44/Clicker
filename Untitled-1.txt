@@ -110,7 +110,7 @@ public class Script1 : MonoBehaviour
 
     }
 
-    public void priestupdaterule(int index)
+    public void priestupdaterule(int index)                                     // апгрейд прістів
 
     {
        
@@ -139,7 +139,7 @@ public class Script1 : MonoBehaviour
        
     }
 
-    public void Monkupgraderule(int index)
+    public void Monkupgraderule(int index)                                          // прокачка монків
 
     {
 
@@ -168,7 +168,7 @@ public class Script1 : MonoBehaviour
 
     }
 
-    public void superbonus(int index)
+    public void superbonus(int index)                                                  // купівля ікони
     {   if (gems >= inventorycosts[2])
         {
             gems -= inventorycosts[2];
@@ -213,7 +213,7 @@ public class Script1 : MonoBehaviour
     {
         upgradepan.SetActive(!upgradepan.activeSelf);
     }
-    public void upgradepanplusbonus(int index)                                  // робота панельки яка відкривається кнопкою апгрейд
+    public void upgradepanplusbonus(int index)                                  // робота кнопки лвлап
     {
         if (score >= upgradeCosts[index])
         {
@@ -350,4 +350,3 @@ public class Script1 : MonoBehaviour
 
 
 }
-
