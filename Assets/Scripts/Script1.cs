@@ -5,6 +5,56 @@ using System;
 using System.Threading;
 using System.Collections;
 
+public class GoldFarmerType {
+    public int count = 0;
+    public int goldMultiplier = 1;
+
+    public GoldFarmerType(int multiplier) {
+        goldMultiplier = multiplier;
+    }
+
+    public float gps() {
+        return count * goldMultiplier;
+    }
+
+    public bool canAdd() {
+        return true;
+    }
+
+    public bool add() {
+        if (canAdd()) {
+            count++;
+        }
+    }
+
+    public string description() {
+        return count;
+    }
+}
+
+public class PriestType : GoldFarmerType {
+    public PriestType() : base(1) {}
+
+    override description() {
+        return "Priests - " + count; 
+    }
+}
+
+public class MonkType : GoldFarmerType {
+    public int candleCount = 0;
+    
+    public MonkType() : base(500) {}
+
+    override bool canAdd() {
+        return count < candleCount * 5;
+    }
+
+    override description() {
+        return "Monks - " + count; 
+    }
+}
+
+
 public class Script1 : MonoBehaviour
 {
     public Text scoreText;
@@ -38,6 +88,13 @@ public class Script1 : MonoBehaviour
 
     public GameObject Tamplepan;
 
+    public GoldFarmerType[] goldFarmerTypes;
+
+    public Script1() {
+        var monkType = new MonkType();
+        var priestType = new PriestType();
+        goldFarmerTypes = new GoldFarmerType[] { monkType, priestType };
+    }
 
     private void Start()
     {
