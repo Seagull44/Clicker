@@ -5,6 +5,123 @@ using System;
 using System.Threading;
 using System.Collections;
 
+public class GoldFarmerType
+{
+    public int count;
+    public int goldMultiplier;
+    public int upgradegps;
+    public int cost;
+
+    public GoldFarmerType(int multiplier, int count, int upgradegps, int cost)
+    {
+        goldMultiplier = multiplier;
+        this.count = count;
+        this.upgradegps = upgradegps;
+    }
+
+    public float gps()
+    {
+        return count * (goldMultiplier * upgradegps);
+    }
+
+    virtual public bool canAdd()
+    {
+        return true;
+    }
+
+    public void add()
+    {
+        if (canAdd())
+        {
+            count++;
+        }
+    }
+
+    virtual public string description()
+    {
+        return count.ToString();
+    }
+}
+
+public class PriestType : GoldFarmerType
+{
+    public PriestType() : base(1,0,0,120) { }
+
+    override public string description()
+    {
+        return "Priests - " + base.description();
+    }
+}
+
+public class MonkType : GoldFarmerType
+{
+    public int candleCount;
+
+    public MonkType() : base(100,0,0,1000) { }
+
+    override public bool CanAdd()
+    {
+        return count < candleCount * 5;
+    }
+
+    override public string Description()
+    {
+        return "Monks - " + base.description();
+    }
+}
+
+public enum Currency {
+    Coin,
+    Gem
+}
+
+public class Transaction {
+    public Date date;
+    public Currency currency;
+    public int change;
+
+    public Transaction(Currency currency, int change) {
+        this.date = new Date();
+        this.currency = currency;
+        this.change = change;
+    }
+}
+
+public class CurrencyAccount {
+    public Currency currency;
+    public int ammount;
+}
+
+public class Wallet {
+    private CurrencyAccount[] accounts = [
+        new CurrencyAccount { currency = Currency.Coin, ammount = 0 },
+        new CurrencyAccount { currency = Currency.Gem, ammount = 0 },
+    ];
+
+    public List<Transaction> transactions = new List<Transaction>();
+    
+    public void Add(Currency currency, int count) {
+        let transaction = new Transaction(currency, count);
+        this.transactions.Add(transaction);
+        switch (currency) {
+            case Currency.Coin:
+                this.AddCoin(count);
+                break;
+            case Currency.Gem:
+                this.AddGem(count);
+                break;
+        }
+    }
+
+    private void AddCoin(int count) {
+        this.accounts[0].ammount = this.accounts[0].ammount + count;
+    }
+
+    private void AddGem(int count) {
+        this.accounts[1].ammount = this.accounts[1].ammount + count;
+    }
+}
+
 public class Script1 : MonoBehaviour
 {
     public Text scoreText;
@@ -14,11 +131,11 @@ public class Script1 : MonoBehaviour
     public Button[] upgradebuttons;
     public GameObject upgradepan;
     public float[] PrayTime;
-    private int score = 10000000;
+    private int score = 0;
     private int bonus = 1;
     public int priestscount, priestbonus = 1;
     public int priestupdate;
-    
+
     public GameObject nempan;
     public int[] upgradeCosts;
     public int[] upgradeBonuses;
@@ -28,7 +145,7 @@ public class Script1 : MonoBehaviour
     private int gembonus = 1;
     public int altar;
     public int remains;
-   
+
     public int icon;
     public Button[] inventorybuttons;
     public int candle;
@@ -38,6 +155,14 @@ public class Script1 : MonoBehaviour
 
     public GameObject Tamplepan;
 
+    public GoldFarmerType[] goldFarmerTypes;
+
+    public Script1()
+    {
+        var monkType = new MonkType();
+        var priestType = new PriestType();
+        goldFarmerTypes = new GoldFarmerType[] { monkType, priestType };
+    }
 
     private void Start()
     {
@@ -65,7 +190,7 @@ public class Script1 : MonoBehaviour
         {
             monkcountText.text = "Monks - " + monkcount;
         }
-        
+
         if (monkcount >= candle * 5)
         {
             upgradebuttons[1].interactable = false;
@@ -74,7 +199,7 @@ public class Script1 : MonoBehaviour
         {
             upgradebuttons[1].interactable = true;
         }
-        
+
         if (priestscount <= 0)
         {
             upgradebuttons[3].interactable = false;
@@ -99,15 +224,15 @@ public class Script1 : MonoBehaviour
         {
             upgradebuttons[4].interactable = false;
         }
-        
+
     }
 
-        
+
     IEnumerator Gembonuspersec()                                                   // щосекунди добавляє гембонус
     {
         while (true)
         {
-            gems +=(altar * gembonus);
+            gems += (altar * gembonus);
             yield return new WaitForSeconds(300);
         }
 
@@ -127,7 +252,7 @@ public class Script1 : MonoBehaviour
     public void priestupdaterule(int index)                                     // апгрейд прістів
 
     {
-       
+
         if (score >= upgradeCosts[4])
         {
             score -= upgradeCosts[4];
@@ -141,16 +266,16 @@ public class Script1 : MonoBehaviour
         }
         if (priestupdate > 0)
         {
-            priestbonus *=  (50 * priestupdate);
+            priestbonus *= (50 * priestupdate);
         }
 
         if (priestupdate >= 3)
         {
             upgradebttnstext[6].text = "MAX upgrade";
         }
-       
-       
-       
+
+
+
     }
 
     public void Monkupgraderule(int index)                                          // прокачка монків
@@ -183,14 +308,15 @@ public class Script1 : MonoBehaviour
     }
 
     public void superbonus(int index)                                                  // купівля ікони
-    {   if (gems >= inventorycosts[2])
+    {
+        if (gems >= inventorycosts[2])
         {
             gems -= inventorycosts[2];
             inventorycosts[2] += inventorycosts[2] * 3;
             icon++;
             upgradebttnstext[5].text = "Icon\n" + inventorycosts[2] + "G";
         }
-        if (icon> 0)
+        if (icon > 0)
         {
             bonus = bonus * icon * 40;
         }
@@ -199,7 +325,7 @@ public class Script1 : MonoBehaviour
             StartCoroutine(nem(nempan));                                        // запускає каротіну для панельки з надписом що не достатньо коштів
         }
     }
-  
+
 
     public void inventory()                                                     // відкриває\закриває інвентар
 
@@ -240,19 +366,20 @@ public class Script1 : MonoBehaviour
         {
             StartCoroutine(nem(nempan));                                        // запускає каротіну для панельки з надписом що не достатньо коштів
         }
-        
+
 
     }
 
     public void HireMonk(int index)                                             // відповідає за купівлю монків
     {
-        
 
-        
-            if (score >= upgradeCosts[index])
+
+
+        if (score >= upgradeCosts[index])
         {
             monkcount++;
-            score -= upgradeCosts[index];
+            score -= upgradeCosts[index]
+;
             upgradeCosts[index] *= 10;
             upgradebttnstext[3].text = "Hire monk\n" + upgradeCosts[index] + "$";
         }
@@ -279,7 +406,7 @@ public class Script1 : MonoBehaviour
         }
     }
 
-    
+
 
     public void Hirepriest(int index)                                             // метод для найму прістів
     {
@@ -301,8 +428,8 @@ public class Script1 : MonoBehaviour
 
         int cost = 3 * priestscount;
         if (priestscount > 0)
-        upgradebttnstext[2].text = "Pray\n" + cost + "$";
-        
+            upgradebttnstext[2].text = "Pray\n" + cost + "$";
+
         if (score >= cost)
         {
             StartCoroutine(PrayTimer(PrayTime[index], index));
@@ -334,7 +461,7 @@ public class Script1 : MonoBehaviour
             yield return new WaitForSeconds(timer);
             priestbonus /= 3;
         }
-            upgradebuttons[index].interactable = true;
+        upgradebuttons[index].interactable = true;
 
     }
 
