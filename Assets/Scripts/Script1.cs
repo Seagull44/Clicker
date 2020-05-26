@@ -59,89 +59,67 @@ public class MonkType : GoldFarmerType
 
     public MonkType() : base(100,0,0,1000) { }
 
-    override public bool canAdd()
+    override public bool CanAdd()
     {
         return count < candleCount * 5;
     }
 
-    override public string description()
+    override public string Description()
     {
         return "Monks - " + base.description();
     }
 }
 
-public class Currecy
-{
-    public int score = 0;
-    public int upForCoin;
-    public int gems = 0;
-    public int gembonus = 0;
-    public int cost;
-    public int upforgems;
-    public Currecy(int score, int upForCoin, int gems, int gembonus, int cost, int upforgems)
-    {
-        this.score = score;
-        this.upForCoin = upForCoin;
-        this.gems = gems;
-        this.gembonus = gembonus;
-        this.cost = cost;
-        this.upforgems = upforgems;
-    }
-    virtual public bool Canup()
-    {
-        return true;
-    }
-    virtual public void up ()
-    {
-        if (Canup())
-            upForCoin++;
+public enum Currency {
+    Coin,
+    Gem
+}
+
+public class Transaction {
+    public Date date;
+    public Currency currency;
+    public int change;
+
+    public Transaction(Currency currency, int change) {
+        this.date = new Date();
+        this.currency = currency;
+        this.change = change;
     }
 }
-public class Upgradeforcoins : Currecy
-{
-    public Upgradeforcoins() : base(0, 0, 0, 0, 0, 0) {}
-    override public bool Canup()
-    {
-        if (score >= cost) 
-        {
-            return true; 
-        }
-        else 
-        {
-            return false; 
-        }
 
-        
-    }   
-    override public void up()
-    {
-        base.Canup();
-        score = score - cost;
-    }
+public class CurrencyAccount {
+    public Currency currency;
+    public int ammount;
 }
-public class UpgradeForGems : Currecy
-{
-    public UpgradeForGems() : base(0, 0, 0, 0, 0, 0) { }
-    override public bool Canup()
-    {
-        if (gems >= cost)
-        {
-            return true;
+
+public class Wallet {
+    private CurrencyAccount[] accounts = [
+        new CurrencyAccount { currency = Currency.Coin, ammount = 0 },
+        new CurrencyAccount { currency = Currency.Gem, ammount = 0 },
+    ];
+
+    public List<Transaction> transactions = new List<Transaction>();
+    
+    public void Add(Currency currency, int count) {
+        let transaction = new Transaction(currency, count);
+        this.transactions.Add(transaction);
+        switch (currency) {
+            case Currency.Coin:
+                this.AddCoin(count);
+                break;
+            case Currency.Gem:
+                this.AddGem(count);
+                break;
         }
-        else
-        {
-            return false;
-        }
-
-
-    }
-    override public void up()
-    {
-        if (Canup())
-        upforgems++;
-        gems = gems - cost;
     }
 
+    private void AddCoin(int count) {
+        this.accounts[0].ammount = this.accounts[0].ammount + count;
+    }
+
+    private void AddGem(int count) {
+        this.accounts[1].ammount = this.accounts[1].ammount + count;
+    }
 }
 
 public class Script1 : MonoBehaviour
